@@ -21,6 +21,9 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/groups', require('./routes/group'));
 app.use('/api/expenses', require('./routes/expense'));
+app.use('/api/settlements', require('./routes/settlement'));
+app.use('/api/import', require('./routes/import'));
+app.use('/api/balances', require('./routes/balance'));
 
 // Basic health check route
 app.get('/', (req, res) => {
