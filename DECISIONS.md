@@ -44,3 +44,11 @@ This document outlines the significant technical and product decisions made duri
 - TailwindCSS or Material-UI for rapid styling.
 - Vanilla CSS Modules with CSS Variables.
 **Why:** Building a custom flat-design system using CSS variables ensures the application remains lightweight and proves fundamental frontend competency without relying on bulky third-party component libraries.
+
+## 7. Guest Accounts for Non-Member CSV Participants
+**Decision:** When the CSV references someone not in the group (like Kabir), the importer creates a guest user with `is_guest=true`.
+**Options Considered:**
+- Reject the row entirely if a participant doesn't have an active user account.
+- Map the expense to an "Unknown" placeholder bucket.
+- Create a lightweight guest account to track their share without giving login access.
+**Why:** The CSV contains references to people who may not be full app users but were involved in a single transaction (e.g., a visitor). Creating a guest account ensures their exact share is perfectly tracked in the balance engine without breaking relational integrity or giving them unauthorized login access.
