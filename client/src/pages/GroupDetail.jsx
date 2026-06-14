@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getGroupById, addMember } from '../api/groups';
-import { getGroupExpenses, createExpense } from '../api/expenses';
+import { getGroupExpenses, createExpense, getExpense } from '../api/expenses';
 import { useToast } from '../components/Toast';
 import Modal from '../components/Modal';
 import { Plus, UserPlus, DollarSign, Calendar, Upload } from 'lucide-react';
@@ -12,6 +12,9 @@ const GroupDetail = () => {
   const [group, setGroup] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [expandedExpense, setExpandedExpense] = useState(null);
+  const [expenseSplits, setExpenseSplits] = useState({});
   
   // Modals state
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -60,6 +63,20 @@ const GroupDetail = () => {
       addToast(error.response?.data?.message || 'Failed to add member', 'error');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleExpenseClick = async (expenseId) => {
+    if (expandedExpense === expenseId) {
+      setExpandedExpense(null);
+      return;
+    }
+    try {
+      const res = await getExpense(expenseId);
+      setExpenseSplits(prev => ({ ...prev, [expenseId]: res.splits }));
+      setExpandedExpense(expenseId);
+    } catch (e) {
+      addToast('Failed to load expense details', 'error');
     }
   };
 
@@ -135,7 +152,8 @@ const GroupDetail = () => {
           ) : (
             <div className="expense-list">
               {expenses.map(expense => (
-                <div key={expense.id} className="expense-card glass-panel">
+                <div key={expense.id} className="expense-card glass-panel" onClick={() => handleExpenseClick(expense.id)} style={{cursor:'pointer', flexDirection: 'column', alignItems: 'stretch'}}>
+                  <div style={{display: 'flex', width: '100%', gap: '1.5rem', alignItems: 'center'}}>
                   <div className="expense-date">
                     <Calendar size={14} />
                     <span>{new Date(expense.expense_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
@@ -156,6 +174,18 @@ const GroupDetail = () => {
                       <div className="original-currency">{parseFloat(expense.amount / (expense.fx_rate_used || 83.5)).toFixed(2)} {expense.currency}</div>
                     )}
                   </div>
+                  </div>
+                  {expandedExpense === expense.id && expenseSplits[expense.id] && (
+                    <div className="expense-splits" style={{marginTop:'12px',borderTop:'1px solid rgba(255,255,255,0.1)',paddingTop:'12px'}}>
+                      <p style={{fontSize:'12px',opacity:0.6,marginBottom:'8px'}}>Split breakdown:</p>
+                      {expenseSplits[expense.id].map(s => (
+                        <div key={s.user_id} style={{display:'flex',justifyContent:'space-between',fontSize:'14px',marginBottom:'4px'}}>
+                          <span>{s.user_name}</span>
+                          <span>₹{parseFloat(s.share_amount).toLocaleString('en-IN',{minimumFractionDigits:2})}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
