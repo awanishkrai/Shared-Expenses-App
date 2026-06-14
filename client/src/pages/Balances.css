@@ -1,0 +1,152 @@
+.balances-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.page-header {
+  margin-bottom: 2.5rem;
+}
+
+.balances-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.balances-list-section h2, .suggestions-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem;
+}
+
+.balance-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.balance-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  border-left: 4px solid transparent;
+}
+
+.balance-card.positive {
+  border-left-color: var(--status-success);
+}
+
+.balance-card.negative {
+  border-left-color: var(--status-danger);
+}
+
+.balance-card.settled {
+  border-left-color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.balance-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.balance-name {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.balance-amount-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.balance-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.balance-card.positive .balance-value {
+  color: var(--status-success);
+}
+
+.balance-card.negative .balance-value {
+  color: var(--status-danger);
+}
+
+/* Suggestions List */
+.suggestions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.suggestion-card {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.transfer-visual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0,0,0,0.2);
+  padding: 1rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.transfer-node {
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.transfer-node.from {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--status-danger);
+}
+
+.transfer-node.to {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--status-success);
+}
+
+.transfer-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.transfer-amount {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+
+.w-full { width: 100%; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-6 { margin-top: 1.5rem; }
+.text-center { text-align: center; }
+.p-4 { padding: 1rem; }
+.text-muted { color: var(--text-muted); }
+
+@media (max-width: 900px) {
+  .balances-layout {
+    grid-template-columns: 1fr;
+  }
+}
