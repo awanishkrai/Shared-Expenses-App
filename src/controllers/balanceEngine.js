@@ -6,7 +6,7 @@ const getBalances=async(req,res)=>{
         const {id}=req.params;
 
         // what each person paid out of pocket
-        const paidQuery='SELECT e.paid_by as user_id,u.username as name,'+
+        const paidQuery='SELECT e.paid_by as user_id,u.name as name,'+
         'SUM(e.amount_inr) as total_paid '+
         'FROM expenses e '+
         'JOIN users u ON u.id=e.paid_by '+
@@ -14,11 +14,11 @@ const getBalances=async(req,res)=>{
         'WHERE e.group_id=? AND e.status=\'active\' '+
         'AND e.expense_date>=gm.joined_at '+
         'AND (gm.left_at IS NULL OR e.expense_date<=gm.left_at) '+
-        'GROUP BY e.paid_by,u.username';
+        'GROUP BY e.paid_by,u.name';
         const [paidRows]=await pool.query(paidQuery,[id]);
 
         // what each person owes (their share of all expenses)
-        const owedQuery='SELECT es.user_id,u.username as name,'+
+        const owedQuery='SELECT es.user_id,u.name as name,'+
         'SUM(es.share_amount) as total_owed '+
         'FROM splits es '+
         'JOIN expenses e ON e.id=es.expense_id '+
@@ -27,7 +27,7 @@ const getBalances=async(req,res)=>{
         'WHERE e.group_id=? AND e.status=\'active\' '+
         'AND e.expense_date>=gm.joined_at '+
         'AND (gm.left_at IS NULL OR e.expense_date<=gm.left_at) '+
-        'GROUP BY es.user_id,u.username';
+        'GROUP BY es.user_id,u.name';
         const [owedRows]=await pool.query(owedQuery,[id]);
 
         // net balance = what you paid minus what you owe

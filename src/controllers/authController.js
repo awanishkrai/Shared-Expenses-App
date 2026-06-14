@@ -13,12 +13,12 @@ class AuthController {
   // Handle user registration
   static async register(req, res) {
     try {
-      const { username, email, password } = req.body;
+      const { name, email, password } = req.body;
       const pool = getPool();
 
       // Basic field checks
-      if (!username || !email || !password) {
-        return res.status(400).json({ error: 'All fields (username, email, password) are required.' });
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: 'All fields (name, email, password) are required.' });
       }
 
       if (password.length < 6) {
@@ -43,8 +43,8 @@ class AuthController {
 
       // Save user to database
       const [result] = await pool.query(
-        'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-        [username, email, hashedPassword]
+        'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
+        [name, email, hashedPassword]
       );
       const userId = result.insertId;
 
@@ -56,7 +56,7 @@ class AuthController {
         token,
         user: {
           id: userId,
-          username,
+          name,
           email
         }
       });
@@ -86,7 +86,7 @@ class AuthController {
       }
 
       // Check if password is correct
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(password, user.password_hash);
       if (!isMatch) {
         return res.status(401).json({ error: 'Invalid email or password.' });
       }
@@ -99,7 +99,7 @@ class AuthController {
         token,
         user: {
           id: user.id,
-          username: user.username,
+          name: user.name,
           email: user.email
         }
       });
@@ -116,7 +116,7 @@ class AuthController {
       
       // req.user gets set by the auth middleware if the token is valid
       const [rows] = await pool.query(
-        'SELECT id, username, email, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
+        'SELECT id, name, email, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
         [req.user.id]
       );
       const user = rows[0];

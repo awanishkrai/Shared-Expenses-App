@@ -78,15 +78,15 @@ function resolveName(raw,lookup){
     // straight case-insensitive lookup
     let key=cleaned.toLowerCase();
     if(lookup[key]){
-        if(lookup[key].username!==cleaned) corrections.push('name_casing');
-        return {found:true,user:lookup[key],corrections,ambiguous:false,cleaned:lookup[key].username};
+        if(lookup[key].name!==cleaned) corrections.push('name_casing');
+        return {found:true,user:lookup[key],corrections,ambiguous:false,cleaned:lookup[key].name};
     }
 
     // try just the first name — catches "Priya S" when we only have "Priya"
     let firstName=cleaned.split(/\s+/)[0].toLowerCase();
     let partials=Object.keys(lookup).filter(k=>k===firstName);
     if(partials.length===1){
-        return {found:false,suggestedUser:lookup[partials[0]],corrections,ambiguous:true,cleaned:lookup[partials[0]].username};
+        return {found:false,suggestedUser:lookup[partials[0]],corrections,ambiguous:true,cleaned:lookup[partials[0]].name};
     }
 
     return {found:false,user:null,corrections,ambiguous:false,cleaned};
@@ -118,7 +118,7 @@ function parseSplitDetails(raw){
 // shorthand to insert an anomaly row into the DB
 async function logAnomaly(pool,sessionId,rowNum,type,rawData,desc,action,st){
     await pool.query(
-        'INSERT INTO import_anomalies (session_id,row_number,anomaly_type,raw_data,description,proposed_action,status) VALUES (?,?,?,?,?,?,?)',
+        'INSERT INTO import_anomalies (session_id,row_num,anomaly_type,raw_data,description,proposed_action,status) VALUES (?,?,?,?,?,?,?)',
         [sessionId,rowNum,type,JSON.stringify(rawData),desc,action,st]
     );
 }
@@ -153,14 +153,14 @@ const importCSV=async(req,res)=>{
         // load everyone in this group — we'll need this for name resolution
         // and membership date checks throughout
         const [members]=await pool.query(
-            'SELECT u.id,u.username,gm.joined_at,gm.left_at '+
+            'SELECT u.id,u.name,gm.joined_at,gm.left_at '+
             'FROM group_memberships gm JOIN users u ON u.id=gm.user_id '+
             'WHERE gm.group_id=?',[groupId]
         );
         const memberLookup={};
         for(const m of members){
-            memberLookup[m.username.toLowerCase()]={
-                id:m.id,username:m.username,
+            memberLookup[m.name.toLowerCase()]={
+                id:m.id,name:m.name,
                 joined_at:m.joined_at,left_at:m.left_at
             };
         }
@@ -448,7 +448,7 @@ const importCSV=async(req,res)=>{
                         if(friendMatch) cleanName=friendMatch[1];
 
                         // see if they already exist as a user
-                        let [existingUser]=await pool.query('SELECT id,username FROM users WHERE username=?',[cleanName]);
+                        let [existingUser]=await pool.query('SELECT id,name FROM users WHERE name=?',[cleanName]);
                         let guestId;
 
                         if(existingUser.length>0){
@@ -457,11 +457,11 @@ const importCSV=async(req,res)=>{
                             // create a guest account — they can't log in, this is just for tracking
                             let guestEmail=cleanName.toLowerCase().replace(/\s+/g,'.')+'.'+Date.now()+'@guest.local';
                             let [guestResult]=await pool.query(
-                                'INSERT INTO users (username,email,password,is_guest) VALUES (?,?,?,?)',
+                                'INSERT INTO users (name,email,password_hash,is_guest) VALUES (?,?,?,?)',
                                 [cleanName,guestEmail,'no_login',true]);
                             guestId=guestResult.insertId;
                             // remember them for the rest of this import
-                            memberLookup[cleanName.toLowerCase()]={id:guestId,username:cleanName,joined_at:null,left_at:null};
+                            memberLookup[cleanName.toLowerCase()]={id:guestId,name:cleanName,joined_at:null,left_at:null};
                         }
 
                         rowAnomalies.push({type:'non_member',
@@ -558,7 +558,7 @@ const importCSV=async(req,res)=>{
                 // ========================================
 
                 if(expenseId&&status!=='blocked'&&participantIds.length>0){
-                    const splitQ='INSERT INTO splits (expense_id,user_id,share_amount,share_pct,share_units) VALUES (?,?,?,?,?)';
+                    const splitQ='INSERT INTO expense_splits (expense_id,user_id,share_amount,share_pct,share_units) VALUES (?,?,?,?,?)';
                     let base=amountInr||amountNum;
 
                     if(splitType==='equal'){

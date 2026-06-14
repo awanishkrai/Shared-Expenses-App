@@ -39,7 +39,7 @@ const getGroupSettlements=async(req,res)=>{
         const {id}=req.params;
 
         const query='SELECT s.*,'+
-            'payer.username as payer_name,payee.username as payee_name '+
+            'payer.name as payer_name,payee.name as payee_name '+
             'FROM settlements s '+
             'JOIN users payer ON payer.id=s.payer_id '+
             'JOIN users payee ON payee.id=s.payee_id '+

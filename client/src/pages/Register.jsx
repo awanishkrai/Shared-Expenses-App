@@ -4,7 +4,7 @@ import { register } from '../api/auth';
 import './Auth.css';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,9 +17,9 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const data = await register(username, email, password);
+      const data = await register(name, email, password);
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify({ id: data.userId, username, email }));
+      localStorage.setItem('user', JSON.stringify({ id: data.userId, name, email }));
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to register');
@@ -41,8 +41,8 @@ const Register = () => {
             <label>Username</label>
             <input 
               type="text" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
               required 
               placeholder="e.g. Aisha"
             />
