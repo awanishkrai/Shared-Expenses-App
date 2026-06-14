@@ -4,7 +4,8 @@ const membershipSchema = {
     id: 'INT AUTO_INCREMENT PRIMARY KEY',
     user_id: 'INT NOT NULL',
     group_id: 'INT NOT NULL',
-    joined_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'
+    joined_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+    left_at: 'TIMESTAMP NULL DEFAULT NULL'
   },
   constraints: [
     'UNIQUE KEY (user_id, group_id, joined_at)',

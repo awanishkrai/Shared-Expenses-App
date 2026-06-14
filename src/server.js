@@ -19,6 +19,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // Route mounts
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/groups', require('./routes/group'));
+app.use('/api/expenses', require('./routes/expense'));
 
 // Basic health check route
 app.get('/', (req, res) => {
